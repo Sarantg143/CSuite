@@ -396,55 +396,71 @@ userRouter.post("/verify-reset-link", async (req, res) => {
 });
 
 // User Login time
-userRouter.post("/:userId/login", getUserById, async (req, res) => {
+userRouter.post("/:userId/login", async (req, res) => {
+  const { userId } = req.params;
+
   try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     const today = new Date().toISOString().split("T")[0]; // e.g., "2024-11-25"
-    const existingLog = req.user.loginLogoutLogs.find(log => log.date === today);
+    const existingLog = user.loginLogoutLogs.find((log) => log.date === today);
 
     if (existingLog) {
       existingLog.loginTime = new Date(); // Update today's login time
     } else {
-      req.user.loginLogoutLogs.push({
+      user.loginLogoutLogs.push({
         date: today,
         loginTime: new Date(),
       });
     }
 
-    await req.user.save();
-    res.status(200).json({ message: "Login time recorded", logs: req.user.loginLogoutLogs });
+    await user.save();
+    res.status(200).json({ message: "Login time recorded", logs: user.loginLogoutLogs });
   } catch (err) {
     res.status(500).json({ message: "Failed to record login time", error: err.message });
   }
 });
 
 // User Logout time
-userRouter.post("/:userId/logout", getUserById, async (req, res) => {
+userRouter.post("/:userId/logout", async (req, res) => {
+  const { userId } = req.params;
+
   try {
-    const today = new Date().toISOString().split("T")[0];
-    const existingLog = req.user.loginLogoutLogs.find(log => log.date === today);
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const today = new Date().toISOString().split("T")[0]; // e.g., "2024-11-25"
+    const existingLog = user.loginLogoutLogs.find((log) => log.date === today);
 
     if (existingLog) {
-      existingLog.logoutTime = new Date(); 
+      existingLog.logoutTime = new Date();
     } else {
-      req.user.loginLogoutLogs.push({
+      user.loginLogoutLogs.push({
         date: today,
         logoutTime: new Date(),
       });
     }
 
-    await req.user.save();
-    res.status(200).json({ message: "Logout time recorded", logs: req.user.loginLogoutLogs });
+    await user.save();
+    res.status(200).json({ message: "Logout time recorded", logs: user.loginLogoutLogs });
   } catch (err) {
     res.status(500).json({ message: "Failed to record logout time", error: err.message });
   }
 });
 
+
 //  Daily Logs
-userRouter.get("/:userId/daily-login-logout", getUserById, async (req, res) => {
+userRouter.get("/:userId/daily-login-logout", async (req, res) => {
+  const { userId } = req.params;
+
   try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
     res.status(200).json({
       message: "Daily login/logout logs retrieved",
-      logs: req.user.loginLogoutLogs,
+      logs: user.loginLogoutLogs,
     });
   } catch (err) {
     res.status(500).json({ message: "Failed to retrieve logs", error: err.message });
