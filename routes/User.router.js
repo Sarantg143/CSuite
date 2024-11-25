@@ -351,8 +351,7 @@ userRouter.post('/login', async (req, res) => {
   }
 });
 
-// Route to reset the user's password
- userRouter.put('/:id/resetpass', async (req, res) => {
+userRouter.put('/:id/resetpass', async (req, res) => {
   try {
     const { id } = req.params;
     const { newPassword } = req.body;
@@ -364,16 +363,16 @@ userRouter.post('/login', async (req, res) => {
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
+
     res.status(200).json({ success: true, message: 'Password reset successfully' });
   } catch (error) {
-   console.error('Error resetting password:', error);
+    console.error('Error resetting password:', error);
     res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
   }
 });
+
 
 
 
