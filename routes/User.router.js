@@ -73,7 +73,6 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
     
     console.log("Received request to register or login user with email:", email);
 
-    // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       console.log("User already exists with email:", email);
@@ -85,14 +84,14 @@ userRouter.post('/', upload.fields([{ name: 'profilePic' }, { name: 'profileBann
       // Create user with social media ID
       newUser = new User({ ...rest, profilePic, profileBanner, socialMediaId });
     } else if (password) {
-      // Hash password for password-based user creation
+
       const hashedPassword = await bcrypt.hash(password, 10);
       newUser = new User({ ...rest, password: hashedPassword, profilePic, profileBanner });
     } else {
       return res.status(400).json({ success: false, message: 'Password or social media ID required' });
     }
 
-    // Save the new user to the database
+  
     const savedUser = await newUser.save();
     res.status(201).json({ success: true, user: savedUser, message: "User added successfully" });
   } catch (e) {
@@ -396,6 +395,63 @@ userRouter.post("/verify-reset-link", async (req, res) => {
     res.status(400).json({ success: false, message: err.message });
   }
 });
+
+// User Login time
+userRouter.post("/:userId/login", getUserById, async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0]; // e.g., "2024-11-25"
+    const existingLog = req.user.loginLogoutLogs.find(log => log.date === today);
+
+    if (existingLog) {
+      existingLog.loginTime = new Date(); // Update today's login time
+    } else {
+      req.user.loginLogoutLogs.push({
+        date: today,
+        loginTime: new Date(),
+      });
+    }
+
+    await req.user.save();
+    res.status(200).json({ message: "Login time recorded", logs: req.user.loginLogoutLogs });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to record login time", error: err.message });
+  }
+});
+
+// User Logout time
+userRouter.post("/:userId/logout", getUserById, async (req, res) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const existingLog = req.user.loginLogoutLogs.find(log => log.date === today);
+
+    if (existingLog) {
+      existingLog.logoutTime = new Date(); 
+    } else {
+      req.user.loginLogoutLogs.push({
+        date: today,
+        logoutTime: new Date(),
+      });
+    }
+
+    await req.user.save();
+    res.status(200).json({ message: "Logout time recorded", logs: req.user.loginLogoutLogs });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to record logout time", error: err.message });
+  }
+});
+
+//  Daily Logs
+userRouter.get("/:userId/daily-login-logout", getUserById, async (req, res) => {
+  try {
+    res.status(200).json({
+      message: "Daily login/logout logs retrieved",
+      logs: req.user.loginLogoutLogs,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to retrieve logs", error: err.message });
+  }
+});
+
 
 
 module.exports = userRouter;

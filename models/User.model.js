@@ -94,6 +94,12 @@ const EmergencyContactSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
+const LoginLogoutLogSchema = new mongoose.Schema({
+  date: { type: String, required: true }, 
+  loginTime: { type: Date, default: null },
+  logoutTime: { type: Date, default: null },
+}, { _id: false });
+
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -173,6 +179,7 @@ const UserSchema = new mongoose.Schema({
   type: { type: String, default: 'user' },
   firstLogin: { type: Boolean, default: true },
   elaComplete: { type: Boolean, default: false },
+  loginLogoutLogs: [LoginLogoutLogSchema],
 }, { timestamps: true });
 
 // Hash the password
