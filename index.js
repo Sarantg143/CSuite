@@ -25,6 +25,7 @@ const UploadDriveRouter = require('./routes/UploadToDrive.router')
 const UploadVimeoRouter = require('./routes/UploadToVimeo.router')
 const CompleteVideo = require('./routes/CompletedVideo.router')
 const instructorRoutes = require('./routes/Instructor.router');
+const eventRouter = require('./routes/Event.router');
 // app.use(bodyParser.json)
 
 app.use('/api/contact', contactRouter)
@@ -39,6 +40,7 @@ app.use('/api/uploadtodrive', UploadDriveRouter);
 app.use('/api/uploadtovimeo', UploadVimeoRouter);
 app.use('/api/completevideo', CompleteVideo);
 app.use('/api/instructor',instructorRoutes );
+app.use('/api/event',eventRouter);
 // Root route
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
