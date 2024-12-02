@@ -1,7 +1,8 @@
-const express = require('express');
-const router = express.Router();
+const { Router } = require('express');
 const Event = require('../models/Event.model');
 const User = require('../models/User.model');
+
+const eventRouter = Router();
 
 eventRouter.post('/add-event', async (req, res) => {
   const { userId, title, startDate, endDate } = req.body;
