@@ -197,8 +197,12 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
     }
     let image = currentCourse.image;
     if (req.file) {
+      console.log('New image uploaded');
       image = bufferToBase64(req.file.buffer); 
+    } else {
+      console.log('No new image uploaded, keeping current image');
     }
+
  const updatedCourse = await CourseDetail.findByIdAndUpdate(
       id,
       {
