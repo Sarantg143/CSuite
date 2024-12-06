@@ -114,11 +114,9 @@ courseDetailsRouter.get('/:id', async (req, res) => {
   }
 });
 
+
 courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
   try {
-    console.log('Request params:', req.params);
-    console.log('Request body:', req.body);
-    console.log('Uploaded file:', req.file);
     const { id } = req.params;
     const {
       title,
@@ -137,6 +135,7 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
     if (!currentCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
+
     let image = currentCourse.image;
     if (req.file) {
       console.log('New image uploaded');
@@ -145,18 +144,24 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
       console.log('No new image uploaded, keeping current image');
     }
 
- const updatedCourse = await CourseDetail.findByIdAndUpdate(
+
+    const parsedOverviewPoints = overviewPoints ? JSON.parse(overviewPoints) : currentCourse.overviewPoints;
+    const parsedLessons = lessons ? JSON.parse(lessons) : currentCourse.lessons;
+    const parsedWhoIsThisFor = whoIsThisFor ? JSON.parse(whoIsThisFor) : currentCourse.whoIsThisFor;
+    const parsedWhatYouGet = whatYouGet ? JSON.parse(whatYouGet) : currentCourse.whatYouGet;
+
+    const updatedCourse = await CourseDetail.findByIdAndUpdate(
       id,
       {
         title,
         description,
-        overviewPoints,
-        image, 
-        lessons,
+        overviewPoints: parsedOverviewPoints,
+        lessons: parsedLessons,
+        whoIsThisFor: parsedWhoIsThisFor,
+        whatYouGet: parsedWhatYouGet,
+        image,
         header,
         videoUrl,
-        whoIsThisFor,
-        whatYouGet,
         syllabus,
         price: Number(price)
       },
@@ -166,12 +171,14 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
     if (!updatedCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
+
     res.status(200).json({ message: 'Course updated successfully', updatedCourse });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error updating course', error: error.message });
   }
- });
+});
+
 
 
 courseDetailsRouter.delete('/delete/:id', async (req, res) => {
