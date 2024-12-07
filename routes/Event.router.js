@@ -4,7 +4,7 @@ const User = require('../models/User.model');
 
 const eventRouter = Router();
 
-eventRouter.post('/add-event', async (req, res) => {
+eventRouter.post('/', async (req, res) => {
   const { userId, title, startDate, endDate } = req.body;
 
   try {
@@ -23,7 +23,7 @@ eventRouter.post('/add-event', async (req, res) => {
   }
 });
 
-eventRouter.get('/user-events/:userId', async (req, res) => {
+eventRouter.get('/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
@@ -39,7 +39,7 @@ eventRouter.get('/user-events/:userId', async (req, res) => {
   }
 });
 
-eventRouter.put('/update-event/:eventId', async (req, res) => {
+eventRouter.put('/:eventId', async (req, res) => {
   const { eventId } = req.params;
   const { title, startDate, endDate } = req.body;
 
@@ -61,7 +61,7 @@ eventRouter.put('/update-event/:eventId', async (req, res) => {
   }
 });
 
-eventRouter.delete('/delete-event/:eventId', async (req, res) => {
+eventRouter.delete('/:eventId', async (req, res) => {
   const { eventId } = req.params;
 
   try {
