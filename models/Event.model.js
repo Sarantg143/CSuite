@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const EventSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', 
+    ref: 'User',
     required: true,
   },
   title: {
@@ -20,9 +20,9 @@ const EventSchema = new mongoose.Schema({
   },
   duration: {
     type: Number, 
-    required: true,
   },
 });
+
 
 EventSchema.pre('save', function (next) {
   if (this.startDate && this.endDate) {
