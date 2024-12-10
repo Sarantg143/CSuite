@@ -55,25 +55,20 @@ const CoursePurchasedSchema = new mongoose.Schema({
   }
 }, { _id: false });
 
-const TestScoreSchema = new mongoose.Schema({
-  courseId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'CourseDetail'
+const testScoreSchema = new mongoose.Schema({
+  courseName: {
+    type: String,
+    required: true
   },
-  lessonId: {
-    type: Number,
+  lessonName: {
+    type: String,
     required: true
   },
   score: {
     type: Number,
     required: true
-  },
-  isCompleted: {
-    type: Boolean,
-    default: false
   }
-}, { _id: false });
-
+}, { timestamps: true });
 
 const EmergencyContactSchema = new mongoose.Schema({
   name: {
@@ -163,7 +158,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: [false, 'Profile banner field required']
   },
-  testScores: [TestScoreSchema],
+  testScores: [testScoreSchema],
   elaTestScore: { type: Number,  default: 0 },
   emergencyContact: {
     type: EmergencyContactSchema,

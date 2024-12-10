@@ -57,10 +57,27 @@ const ChapterSchema = new mongoose.Schema({
 }, { _id: false });
 
 const LessonSchema = new mongoose.Schema({
-  testId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Test',
-    default: null
+  test: {
+    questions: [
+      {
+        question: {
+          type: String,
+          required: true
+        },
+        options: {
+          type: [String],
+          required: true
+        },
+        correctAnswer: {
+          type: String,
+          required: true
+        }
+      }
+    ],
+    timeLimit: {
+      type: Number,
+      required: false
+    }
   },
   title: {
     type: String,
@@ -75,31 +92,6 @@ const LessonSchema = new mongoose.Schema({
     default: []
   }
 }, { _id: false });
-
-//const LessonSchema = new mongoose.Schema({
-//  lessonId: {
-//    type: Number,
-//    required: true
-//  },
- // title: {
- //  type: String,
- //   default: null
- // },
- // description: {
- //   type: String
- // },
- // files: {
-//  type: [FileSchema],
- //   default: []
- // },
- // testId: {
- //   type: mongoose.Schema.Types.ObjectId,
- //   ref: 'Test',
- //   default: null
-//  }
-//}, { _id: false });
-
-
 
 const OverviewPointSchema = new mongoose.Schema({
   heading: {
