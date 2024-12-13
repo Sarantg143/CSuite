@@ -270,7 +270,8 @@ userRouter.get('/check', async (req, res) => {
       return res.status(400).json({ error: 'Email query parameter is required' });
     }
     console.log(req.query.email);
-    const user = await User.findOne({ email: req.query.email });
+    const user = await User.findOne({
+      $or: [{ email: req.query.email }, { name: req.query.email }], });
 
     if (user) {
       res.json(user);
@@ -290,7 +291,9 @@ userRouter.get('/check', async (req, res) => {
 userRouter.post('/checks', async (req, res) => {
   try {
     const { email } = req.body;
-    const existingUser = await User.findOne({ email });
+    const existingUser= await User.findOne({
+      $or: [{ email }, { name: email }],
+    });
 
     if (existingUser) {
       return res.status(200).json({ exists: true, message: 'Email already exists in the database' });
