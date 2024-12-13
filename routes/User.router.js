@@ -333,23 +333,49 @@ userRouter.post('/signup', async (req, res) => {
 
 userRouter.post('/login', async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email }).select('+password');
+    const { identifier, password } = req.body; 
+
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { name: identifier }],
+    }).select('+password');
+
     if (!user) {
-      return res.status(400).json({ error: 'Invalid email or password' });
-    }
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid email or password' });
+      return res.status(400).json({ error: 'Invalid email/username or password' });
     }
 
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid email/username or password' });
+    }
     const userData = user.toObject();
     delete userData.password;
+
     res.json({ message: 'Login successful', user: userData });
   } catch (err) {
-    console.log(err.stack);
+    console.error(err.stack);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// userRouter.post('/login', async (req, res) => {
+//   try {
+//     const user = await User.findOne({ email: req.body.email }).select('+password');
+//     if (!user) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+//     const isMatch = await bcrypt.compare(req.body.password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ error: 'Invalid email or password' });
+//     }
+
+//     const userData = user.toObject();
+//     delete userData.password;
+//     res.json({ message: 'Login successful', user: userData });
+//   } catch (err) {
+//     console.log(err.stack);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 userRouter.put('/:id/resetpass', async (req, res) => {
   try {
