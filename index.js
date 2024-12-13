@@ -27,6 +27,7 @@ const CompleteVideo = require('./routes/CompletedVideo.router')
 const instructorRoutes = require('./routes/Instructor.router');
 const eventRouter = require('./routes/Event.router');
 const adminEventRouter = require('./routes/AdminEvent.router');
+const ReviewRouter = require('./routes/Review.router');
 // app.use(bodyParser.json)
 
 app.use('/api/contact', contactRouter)
@@ -43,6 +44,7 @@ app.use('/api/completevideo', CompleteVideo);
 app.use('/api/instructor',instructorRoutes );
 app.use('/api/event',eventRouter);
 app.use('/api/admin-event',adminEventRouter);
+app.use('/api/review',ReviewRouter);
 // Root route
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
