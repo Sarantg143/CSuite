@@ -334,10 +334,9 @@ userRouter.post('/signup', async (req, res) => {
 userRouter.post('/login', async (req, res) => {
   try {
     const { identifier, password } = req.body; 
-
     const user = await User.findOne({
-      $or: [{ email: identifier }, { name: identifier }],
-    }).select('+password');
+         $or: [{ email: req.body.email }, { name: req.body.email }],
+         }).select('+password');
 
     if (!user) {
       return res.status(400).json({ error: 'Invalid email/username or password' });
