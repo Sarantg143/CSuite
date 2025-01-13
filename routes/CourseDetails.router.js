@@ -7,20 +7,8 @@ const User = require('../models/User.model');
 const courseDetailsRouter = express.Router();
 
 const storage = multer.memoryStorage();
-// const storage = multer.diskStorage({
-//  destination: (req, file, cb) => {
-//    const uploadPath = './uploads/images/';  
-//    fs.existsSync(uploadPath) || fs.mkdirSync(uploadPath, { recursive: true });
-//    cb(null, uploadPath);
-//  },
-//  filename: (req, file, cb) => {
-//    cb(null, Date.now() + path.extname(file.originalname)); 
-//  }
-// });
 const upload = multer({ storage: storage });
 
-// Convert buffer to Base64 
-// const bufferToBase64 = (buffer) => {return buffer.toString('base64');};
 const bufferToBase64 = (buffer) => {if (!buffer) return ''; 
   return buffer.toString('base64');
 };
@@ -44,57 +32,6 @@ const parseJsonFields = (req, res, next) => {
     res.status(400).json({ message: 'Invalid JSON in request body', error: error.message });
   }
 };
-
-// courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async (req, res) => {
-//   try {
-//     const {
-//       title,
-//       description,
-//       overviewPoints,
-//       lessons,
-//       header,
-//       videoUrl,
-//       whoIsThisFor,
-//       whatYouGet,
-//       syllabus,
-//       price
-//     } = req.body;
-    
-//     const image = req.file ? bufferToBase64(req.file.buffer) : '';
-
-//     const updatedLessons = lessons.map(lesson => {
-//       if (lesson.test) {
-//         lesson.test = {
-//           questions: lesson.test.questions || [],
-//           options: lesson.test.options || [],
-//           correctAnswer: lesson.test.correctAnswer || [],
-//           timeLimit: lesson.test.timeLimit || 0
-//         };
-//       }
-//       return lesson;
-//     });
-
-//     const newCourse = new CourseDetail({
-//       title,
-//       description,
-//       overviewPoints,
-//       image,
-//       lessons: updatedLessons,
-//       header,
-//       videoUrl,
-//       whoIsThisFor,
-//       whatYouGet,
-//       syllabus,
-//       price: Number(price)
-//     });
-
-//     await newCourse.save();
-//     res.status(201).json({ message: 'Course created successfully', newCourse });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Error creating course', error: error.message });
-//   }
-// });
 
 courseDetailsRouter.post('/add', upload.single('image'), parseJsonFields, async (req, res) => {
   try {
@@ -148,19 +85,6 @@ courseDetailsRouter.get('/', async (req, res) => {
   }
 });
 
-courseDetailsRouter.get('/', async (req, res) => {
-  try {
-    const courses = await CourseDetail.find();
-    courses.forEach(course => {
-      if (course.image) {
-        course.image = `data:image/jpeg;base64,${course.image}`;
-      }
-    });
-    res.status(200).json(courses);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching courses', error: error.message });
-  }
-});
 
 courseDetailsRouter.get('/:id', async (req, res) => {
   try {
@@ -208,11 +132,16 @@ courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) =>
       console.log('No new image uploaded, keeping current image');
     }
 
+    const parsedOverviewPoints = typeof overviewPoints === 'string' ? JSON.parse(overviewPoints) : overviewPoints || currentCourse.overviewPoints;
+    const parsedLessons = typeof lessons === 'string' ? JSON.parse(lessons) : lessons || currentCourse.lessons;
+    const parsedWhoIsThisFor = typeof whoIsThisFor === 'string' ? JSON.parse(whoIsThisFor) : whoIsThisFor || currentCourse.whoIsThisFor;
+    const parsedWhatYouGet = typeof whatYouGet === 'string' ? JSON.parse(whatYouGet) : whatYouGet || currentCourse.whatYouGet;
 
-    const parsedOverviewPoints = overviewPoints ? JSON.parse(overviewPoints) : currentCourse.overviewPoints;
-    const parsedLessons = lessons ? JSON.parse(lessons) : currentCourse.lessons;
-    const parsedWhoIsThisFor = whoIsThisFor ? JSON.parse(whoIsThisFor) : currentCourse.whoIsThisFor;
-    const parsedWhatYouGet = whatYouGet ? JSON.parse(whatYouGet) : currentCourse.whatYouGet;
+
+    // const parsedOverviewPoints = overviewPoints ? JSON.parse(overviewPoints) : currentCourse.overviewPoints;
+    // const parsedLessons = lessons ? JSON.parse(lessons) : currentCourse.lessons;
+    // const parsedWhoIsThisFor = whoIsThisFor ? JSON.parse(whoIsThisFor) : currentCourse.whoIsThisFor;
+    // const parsedWhatYouGet = whatYouGet ? JSON.parse(whatYouGet) : currentCourse.whatYouGet;
 
     const updatedCourse = await CourseDetail.findByIdAndUpdate(
       id,
@@ -258,153 +187,6 @@ courseDetailsRouter.delete('/delete/:id', async (req, res) => {
     res.status(500).json({ message: 'Error deleting course', error: error.message });
   }
 });
-
-// courseDetailsRouter.get('/', async (req, res) => {
-//   try {
-//     const courses = await CourseDetail.find();
-//     courses.forEach(course => {
-//       if (course.image) {
-//         course.image = `data:image/jpeg;base64,${course.image}`;
-//       }
-//       if (course.lessons) {
-//         course.lessons.forEach(lesson => {
-//           if (lesson.test && lesson.test.questions) {
-//             lesson.test.questions = lesson.test.questions.map((question, index) => ({
-//               question,
-//               options: lesson.test.options[index],
-//               correctAnswer: lesson.test.correctAnswer[index]
-//             }));
-//           }
-//         });
-//       }
-//     });
-
-//     res.status(200).json(courses);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching courses', error: error.message });
-//   }
-// });
-
-
-// courseDetailsRouter.get('/:id', async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const course = await CourseDetail.findById(id);
-//     if (!course) {
-//       return res.status(404).json({ message: 'Course not found' });
-//     }
-
-//     if (course.image) {
-//       course.image = `data:image/jpeg;base64,${course.image}`;
-//     }
-
-//     if (course.lessons) {
-//       course.lessons.forEach(lesson => {
-//         if (lesson.test && lesson.test.questions) {
-//           lesson.test.questions = lesson.test.questions.map((question, index) => ({
-//             question,
-//             options: lesson.test.options[index],
-//             correctAnswer: lesson.test.correctAnswer[index]
-//           }));
-//         }
-//       });
-//     }
-
-//     res.status(200).json(course);
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error fetching course', error: error.message });
-//   }
-// });
-
-// courseDetailsRouter.put('/edit/:id', upload.single('image'), async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const {
-//       title,
-//       description,
-//       overviewPoints,
-//       lessons,
-//       header,
-//       videoUrl,
-//       whoIsThisFor,
-//       whatYouGet,
-//       syllabus,
-//       price
-//     } = req.body;
-
-//     const currentCourse = await CourseDetail.findById(id);
-//     if (!currentCourse) {
-//       return res.status(404).json({ message: 'Course not found' });
-//     }
-
-//     let image = currentCourse.image;
-//     if (req.file) {
-//       console.log('New image uploaded');
-//       image = bufferToBase64(req.file.buffer); 
-//     } else {
-//       console.log('No new image uploaded, keeping current image');
-//     }
-
-//     const parsedOverviewPoints = overviewPoints ? JSON.parse(overviewPoints) : currentCourse.overviewPoints;
-//     const parsedLessons = lessons ? JSON.parse(lessons) : currentCourse.lessons;
-//     const parsedWhoIsThisFor = whoIsThisFor ? JSON.parse(whoIsThisFor) : currentCourse.whoIsThisFor;
-//     const parsedWhatYouGet = whatYouGet ? JSON.parse(whatYouGet) : currentCourse.whatYouGet;
-
-//     const updatedLessons = parsedLessons.map(lesson => {
-//       if (lesson.test) {
-//         lesson.test = {
-//           questions: lesson.test.questions || [],
-//           options: lesson.test.options || [],
-//           correctAnswer: lesson.test.correctAnswer || [],
-//           timeLimit: lesson.test.timeLimit || 0
-//         };
-//       }
-//       return lesson;
-//     });
-
-//     const updatedCourse = await CourseDetail.findByIdAndUpdate(
-//       id,
-//       {
-//         title,
-//         description,
-//         overviewPoints: parsedOverviewPoints,
-//         lessons: updatedLessons,
-//         whoIsThisFor: parsedWhoIsThisFor,
-//         whatYouGet: parsedWhatYouGet,
-//         image,
-//         header,
-//         videoUrl,
-//         syllabus,
-//         price: Number(price)
-//       },
-//       { new: true } 
-//     );
-
-//     if (!updatedCourse) {
-//       return res.status(404).json({ message: 'Course not found' });
-//     }
-
-//     res.status(200).json({ message: 'Course updated successfully', updatedCourse });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Error updating course', error: error.message });
-//   }
-// });
-
-
-// courseDetailsRouter.delete('/delete/:id', async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const deletedCourse = await CourseDetail.findByIdAndDelete(id);
-//     if (!deletedCourse) {
-//       return res.status(404).json({ message: 'Course not found' });
-//     }
-//     res.status(200).json({ message: 'Course deleted successfully', deletedCourse });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Error deleting course', error: error.message });
-//   }
-// });
 
 
 courseDetailsRouter.put('/:courseId/:lessonIndex/test', async (req, res) => {
