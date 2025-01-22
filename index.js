@@ -6,8 +6,21 @@ const bodyParser = require('body-parser');
 const connectionString = "mongodb+srv://sarandatabase:saran%40143@mycluster.zm3yrdt.mongodb.net/demo?retryWrites=true&w=majority&appName=MyCluster";
 const app = express();
 
+
+const allowedOrigins = ['https://c-suite-alpha.vercel.app', 'https://csuite.academy/'];
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+};
+app.use(cors(corsOptions));
 // Enable CORS
-app.use(cors());
+// app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(bodyParser.json());

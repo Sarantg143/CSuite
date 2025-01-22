@@ -83,7 +83,23 @@ UploadDriveRouter.post('/',upload.fields([{ name: 'document' }]),async(req,res)=
         
 })
 
-const geturl = async(file_id)=>{
+const geturl = (fileId) => {
+    return `https://docs.google.com/presentation/d/${fileId}/edit#slide=id.p1`;
+};
+
+fileUploadPromise.then((fileId) => {
+    const editSlideUrl = geturl(fileId);
+    res.status(200).json({ url: editSlideUrl });
+
+    try {
+        fs.unlinkSync(`./temp/${uniqueFileName}`);
+        console.log('Temporary file deleted');
+    } catch (e) {
+        console.log("Temporary file not found or already deleted");
+    }
+});
+
+const geturl1 = async(file_id)=>{
     
     try {
         const result = await drive.files.get({
