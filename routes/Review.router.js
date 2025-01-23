@@ -139,7 +139,7 @@ reviewRouter.get('/', async (req, res) => {
 });
 
 
-reviewRouter.get('/1/:coursename', async (req, res) => {
+reviewRouter.get('/:coursename/rating', async (req, res) => {
   try {
     const { coursename } = req.params;
     const reviews = await Review.find({ coursename });
