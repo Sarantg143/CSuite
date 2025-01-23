@@ -26,7 +26,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
-
+app.options('*', cors());
 // Enable CORS
 // app.use(cors());
 app.use(express.json())
