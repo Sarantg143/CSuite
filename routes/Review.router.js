@@ -139,16 +139,16 @@ reviewRouter.get('/', async (req, res) => {
 });
 
 
-// reviewRouter.get('/:coursename', async (req, res) => {
-//   try {
-//     const { coursename } = req.params;
-//     const reviews = await Review.find({ coursename });
-//     res.status(200).json(reviews);
-//   } catch (error) {
-//     console.error('Error fetching reviews for course:', error.message);
-//     res.status(500).json({ message: 'Error fetching reviews', error: error.message });
-//   }
-// });
+reviewRouter.get('/1/:coursename', async (req, res) => {
+  try {
+    const { coursename } = req.params;
+    const reviews = await Review.find({ coursename });
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error('Error fetching reviews for course:', error.message);
+    res.status(500).json({ message: 'Error fetching reviews', error: error.message });
+  }
+});
 
 
 // reviewRouter.delete('/:id', async (req, res) => {
