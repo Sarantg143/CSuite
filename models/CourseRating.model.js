@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 
-const CourseSchema = new mongoose.Schema({
+const CourseRatingSchema = new mongoose.Schema({
   coursename: {
     type: String,
     required: true,
+   
   },
   averageRating: {
     type: Number,
@@ -15,4 +16,4 @@ const CourseSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Course', CourseSchema);
+module.exports = mongoose.model('Course', CourseRatingSchema);

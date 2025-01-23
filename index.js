@@ -7,16 +7,24 @@ const connectionString = "mongodb+srv://sarandatabase:saran%40143@mycluster.zm3y
 const app = express();
 
 
-const allowedOrigins = ['https://c-suite-alpha.vercel.app', 'https://csuite.academy/'];
+// const allowedOrigins = ['https://c-suite-alpha.vercel.app', 'https://csuite.academy/'];
+// const corsOptions = {
+//     origin: (origin, callback) => {
+//         if (!origin || allowedOrigins.includes(origin)) {
+//             callback(null, true);
+//         } else {
+//             callback(new Error('Not allowed by CORS'));
+//         }
+//     },
+//     credentials: true,
+// };
+
+// Configure CORS
 const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
+  origin: ['https://c-suite-alpha.vercel.app'], // Allow specific origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  credentials: true, // If you use cookies
 };
 app.use(cors(corsOptions));
 // Enable CORS

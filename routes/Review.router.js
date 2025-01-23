@@ -10,17 +10,21 @@ const updateCourseRating = async (coursename) => {
   try {
     const reviews = await Review.find({ coursename });
     const totalReviews = reviews.length;
-    const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews;
+    const averageRating = totalReviews > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
+      : 0;
 
+    // Upsert (Update or Insert) the course rating entry
     await Course.findOneAndUpdate(
-      { coursename: coursename },
+      { coursename },
       { averageRating, totalReviews },
-      { new: true }
+      { upsert: true, new: true }
     );
   } catch (error) {
     console.error('Error updating course rating:', error.message);
   }
 };
+
 
 reviewRouter.post('/', async (req, res) => {
   try {
