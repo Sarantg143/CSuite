@@ -20,13 +20,13 @@ const app = express();
 // };
 
 // Configure CORS
-const corsOptions = {
-  origin: ['https://c-suite-alpha.vercel.app'], // Allow specific origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Allowed methods
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-  credentials: true, // If you use cookies
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
 // Enable CORS
 // app.use(cors());
 app.use(express.json())
