@@ -49,6 +49,7 @@ const instructorRoutes = require('./routes/Instructor.router');
 const eventRouter = require('./routes/Event.router');
 const adminEventRouter = require('./routes/AdminEvent.router');
 const ReviewRouter = require('./routes/Review.router');
+const NotificationRouter = require('./routes/Notification.router');
 // app.use(bodyParser.json)
 
 app.use('/api/contact', contactRouter)
@@ -66,6 +67,7 @@ app.use('/api/instructor',instructorRoutes );
 app.use('/api/event',eventRouter);
 app.use('/api/admin-event',adminEventRouter);
 app.use('/api/review',ReviewRouter);
+app.use('/api/notification',NotificationRouter);
 // Root route
 app.get('/', (req, res) => {
   res.send('Welcome to the API!');
