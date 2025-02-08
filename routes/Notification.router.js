@@ -3,7 +3,7 @@ const router = express.Router();
 const Notification = require('../models/Notification.model');
 const mongoose = require('mongoose');
 
-
+// user page use
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
@@ -16,8 +16,33 @@ router.get('/:userId', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch notifications' });
   }
-}); 
+});
 
+// This is for admin page only
+router.get('/', async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 });
+    res.status(200).json(notifications);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to retrieve notifications' });
+  }
+});
+
+router.get('/:notificationId', async (req, res) => {
+  const { notificationId } = req.params;
+
+  try {
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ error: 'Notification not found' });
+    }
+    res.status(200).json(notification);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to retrieve notification' });
+  }
+});
 
 router.post('/', async (req, res) => {
   const { title, message } = req.body;
@@ -68,6 +93,35 @@ router.put('/:userId/:notificationId', async (req, res) => {
       res.status(500).json({ error: 'Failed to mark notification as read' });
     }
   });
+
+  router.put('/:notificationId', async (req, res) => {
+    const { notificationId } = req.params;
+    const { title, message } = req.body;
+  
+    try {
+  
+      if (!title && !message) {
+        return res.status(400).json({ error: 'Please provide title or message to update' });
+      }
+  
+      const updatedNotification = await Notification.findByIdAndUpdate(
+        notificationId,
+        { title, message },
+        { new: true, runValidators: true }
+      );
+  
+      if (!updatedNotification) {
+        return res.status(404).json({ error: 'Notification not found' });
+      }
+  
+      res.status(200).json({ message: 'Notification updated successfully', updatedNotification });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Failed to update notification' });
+    }
+  });
+  
+
 
 router.delete('/:notificationId', async (req, res) => {
     try {
