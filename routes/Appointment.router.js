@@ -43,10 +43,10 @@ router.post("/request", async (req, res) => {
 // Admin confirms the appointment 
 router.put("/confirm/:id", async (req, res) => {
   try {
-    const { date, time, meetLink } = req.body;
+    const { date, time, meetLink, purpose } = req.body;
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
-      { date, time, meetLink, status: "confirmed" },
+      { date, time, meetLink,purpose, status: "confirmed" },
       { new: true }
     );
     if (!appointment) return res.status(404).json({ message: "Appointment not found" });
