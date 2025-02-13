@@ -18,13 +18,13 @@ const router = express.Router();
 router.post("/request", async (req, res) => {
   try {
     const { userId, username, requestMessage, requestedDate } = req.body;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-    if (user.username !== username) {
-      return res.status(400).json({ error: "Username does not match user ID" });
-    }
+  //  const user = await User.findById(userId);
+  //  if (!user) {
+  //    return res.status(404).json({ error: "User not found" });
+ //   }
+ //   if (user.username !== username) {
+  //    return res.status(400).json({ error: "Username does not match user ID" });
+//    }
     const newAppointment = new Appointment({
       userId,
       username,
