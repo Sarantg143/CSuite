@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+  username: { type: String, required: true }, 
   status: { type: String, enum: ["pending", "confirmed"], default: "pending" },
 
   requestMessage: { type: String, required: function () { return this.status === "pending"; } },
