@@ -51,6 +51,7 @@ const adminEventRouter = require('./routes/AdminEvent.router');
 const ReviewRouter = require('./routes/Review.router');
 const NotificationRouter = require('./routes/Notification.router');
 const appointmentRoutes = require("./routes/Appointment.router");
+const answerRoutes = require("./routes/Answer.router");
 // app.use(bodyParser.json)
 
 app.use('/api/contact', contactRouter)
@@ -70,6 +71,7 @@ app.use('/api/admin-event',adminEventRouter);
 app.use('/api/review',ReviewRouter);
 app.use('/api/notification',NotificationRouter);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/answers", answerRoutes);
 
 // Root route
 app.get('/', (req, res) => {
