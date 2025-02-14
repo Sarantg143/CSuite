@@ -47,8 +47,8 @@ router.put("/confirm/:id", async (req, res) => {
 // Admin schedules an appointment directly
 router.post("/schedule", async (req, res) => {
   try {
-    const { userId, date, time, meetLink, purpose } = req.body;
-    const appointment = new Appointment({ userId, date, time, meetLink, purpose, status: "confirmed" });
+    const { userId,username, date, time, meetLink, purpose } = req.body;
+    const appointment = new Appointment({ userId,username, date, time, meetLink, purpose, status: "confirmed" });
     await appointment.save();
     res.status(201).json({ message: "Appointment scheduled", appointment });
   } catch (err) {
