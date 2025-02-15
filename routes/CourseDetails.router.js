@@ -312,7 +312,7 @@ courseDetailsRouter.post('/submitTest/:userId', async (req, res) => {
   }
 });
 
-courseDetailsRouter.post('/api/tests', async (req, res) => {
+courseDetailsRouter.post('/tests', async (req, res) => {
   try {
     const { title, timeLimit } = req.body;
     if (!title) return res.status(400).json({ error: 'Title is required' });
