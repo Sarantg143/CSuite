@@ -312,5 +312,19 @@ courseDetailsRouter.post('/submitTest/:userId', async (req, res) => {
   }
 });
 
+courseDetailsRouter.post('/api/tests', async (req, res) => {
+  try {
+    const { title, timeLimit } = req.body;
+    if (!title) return res.status(400).json({ error: 'Title is required' });
+    if (timeLimit === undefined) return res.status(400).json({ error: 'Time limit is required' });
+
+    const test = new Test(req.body);
+    await test.save();
+    res.status(201).json(test);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 module.exports = courseDetailsRouter;
