@@ -48,7 +48,7 @@ router.put("/confirm/:id", async (req, res) => {
 router.post("/schedule", async (req, res) => {
   try {
     const { userId,username, date, time, meetLink, purpose } = req.body;
-    const appointment = new Appointment({ userId,username, date, time, meetLink, purpose, status: "booked" });
+    const appointment = new Appointment({ userId,username, date, time, meetLink, purpose, status: "confirmed" });
     await appointment.save();
     res.status(201).json({ message: "Appointment scheduled", appointment });
   } catch (err) {
