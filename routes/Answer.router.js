@@ -94,7 +94,7 @@ router.post('/submit-test', async (req, res) => {
     }
 });
 
-outer.get('/:userId', async (req, res) => {
+router.get('/:userId', async (req, res) => {
   try {
       const { userId } = req.params;
       const testRecords = await UserTestResponse.find({ userId });
