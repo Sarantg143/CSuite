@@ -8,7 +8,7 @@ const AnswerSchema = new mongoose.Schema({
 }, { _id: false });
 
 const LessonTestSchema = new mongoose.Schema({
-  lessonId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  // lessonId: { type: mongoose.Schema.Types.ObjectId, required: true },
   lessonTitle: { type: String, required: true },
   answers: { type: [AnswerSchema], default: [] },
   lessonTotalMarks: { type: Number, default: 0 }
@@ -17,6 +17,7 @@ const LessonTestSchema = new mongoose.Schema({
 const UserTestResponseSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   courseId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  courseTitle: { type: String, required: true },
   lessons: { type: [LessonTestSchema], default: [] },
   courseTotalMarks: { type: Number, default: 0 }
 }, { timestamps: true });

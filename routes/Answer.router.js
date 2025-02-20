@@ -4,57 +4,57 @@ const UserTestResponse = require('../models/Answer.model');
 
 
 router.post('/submit-test', async (req, res) => {
-    try {
-      const { userId, courseId, lessonId, lessonTitle, answers } = req.body;
-  
+  try {
+      const { userId, courseId, courseTitle, lessonTitle, answers } = req.body;
+
       let correctCount = 0;
       answers.forEach(ans => {
-        if (ans.selectedAnswer === ans.correctAnswer) {
-          correctCount++;
-        }
+          if (ans.selectedAnswer === ans.correctAnswer) {
+              correctCount++;
+          }
       });
-  
+
       let testRecord = await UserTestResponse.findOne({ userId, courseId });
-  
+
       if (!testRecord) {
-        testRecord = new UserTestResponse({
-          userId,
-          courseId,
-          lessons: [{
-            lessonId,
-            lessonTitle,
-            answers,
-            lessonTotalMarks: correctCount
-          }]
-        });
+          testRecord = new UserTestResponse({
+              userId,
+              courseId,
+              courseTitle,
+              lessons: [{
+                  lessonTitle,
+                  answers,
+                  lessonTotalMarks: correctCount
+              }]
+          });
       } else {
-        const existingLessonIndex = testRecord.lessons.findIndex(lesson => lesson.lessonId.toString() === lessonId);
-  
-        if (existingLessonIndex !== -1) {
-          return res.status(400).json({ message: 'Test for this lesson already submitted' });
-        }
-  
-        testRecord.lessons.push({
-          lessonId,
-          lessonTitle,
-          answers,
-          lessonTotalMarks: correctCount
-        });
+          const existingLessonIndex = testRecord.lessons.findIndex(lesson => lesson.lessonTitle === lessonTitle);
+
+          if (existingLessonIndex !== -1) {
+              return res.status(400).json({ message: 'Test for this lesson already submitted' });
+          }
+
+          testRecord.lessons.push({
+              lessonTitle,
+              answers,
+              lessonTotalMarks: correctCount
+          });
       }
-  
+
       testRecord.courseTotalMarks = testRecord.lessons.reduce((sum, lesson) => sum + lesson.lessonTotalMarks, 0);
-  
+
       await testRecord.save();
-  
+
       res.status(201).json({ 
-        message: 'Test submitted successfully', 
-        lessonTotalMarks: correctCount, 
-        courseTotalMarks: testRecord.courseTotalMarks 
+          message: 'Test submitted successfully', 
+          lessonTotalMarks: correctCount, 
+          courseTotalMarks: testRecord.courseTotalMarks 
       });
-    } catch (error) {
+  } catch (error) {
       res.status(500).json({ message: 'Error submitting test', error: error.message });
-    }
-  });
+  }
+});
+
   
 
   router.get('/course-marks/:userId/:courseId', async (req, res) => {
@@ -76,49 +76,74 @@ router.post('/submit-test', async (req, res) => {
 
   router.get('/lesson-marks/:userId/:courseId', async (req, res) => {
     try {
-      const { userId, courseId } = req.params;
-      const testRecord = await UserTestResponse.findOne({ userId, courseId });
-  
-      if (!testRecord) {
-        return res.status(404).json({ message: 'No test records found for this user in this course' });
-      }
-      const lessonMarks = testRecord.lessons.map(lesson => ({
-        lessonId: lesson.lessonId,
-        lessonTitle: lesson.lessonTitle,
-        lessonMarks: lesson.lessonTotalMarks
-      }));
-  
-      res.status(200).json(lessonMarks);
+        const { userId, courseId } = req.params;
+        const testRecord = await UserTestResponse.findOne({ userId, courseId });
+
+        if (!testRecord) {
+            return res.status(404).json({ message: 'No test records found for this user in this course' });
+        }
+
+        const lessonMarks = testRecord.lessons.map(lesson => ({
+            lessonTitle: lesson.lessonTitle,
+            lessonMarks: lesson.lessonTotalMarks
+        }));
+
+        res.status(200).json(lessonMarks);
     } catch (error) {
-      res.status(500).json({ message: 'Error fetching lesson-wise marks', error: error.message });
+        res.status(500).json({ message: 'Error fetching lesson-wise marks', error: error.message });
     }
-  });
-  
-  router.get('/:userId', async (req, res) => {
-    try {
+});
+
+outer.get('/:userId', async (req, res) => {
+  try {
       const { userId } = req.params;
-      const testRecords = await UserTestResponse.find({ userId }).populate('courseId', 'title');
-  
+      const testRecords = await UserTestResponse.find({ userId });
+
       if (!testRecords.length) {
-        return res.status(404).json({ message: 'No test records found for this user' });
+          return res.status(404).json({ message: 'No test records found for this user' });
       }
-  
-      const groupedResults = testRecords.map(record => ({
-        courseId: record.courseId._id,
-        courseTitle: record.courseId.title,
-        totalMarks: record.courseTotalMarks,
-        lessons: record.lessons.map(lesson => ({
-          lessonId: lesson.lessonId,
-          lessonTitle: lesson.lessonTitle,
-          lessonMarks: lesson.lessonTotalMarks
-        }))
+
+      const userTestData = testRecords.map(record => ({
+          courseId: record.courseId,
+          courseTitle: record.courseTitle,
+          totalMarks: record.courseTotalMarks,
+          lessons: record.lessons.map(lesson => ({
+              lessonTitle: lesson.lessonTitle,
+              lessonMarks: lesson.lessonTotalMarks,
+              answers: lesson.answers 
+          }))
       }));
-  
-      res.status(200).json(groupedResults);
-    } catch (error) {
+
+      res.status(200).json(userTestData);
+  } catch (error) {
       res.status(500).json({ message: 'Error fetching user test data', error: error.message });
-    }
-  });
-  
+  }
+});
+
+
+router.get('/', async (req, res) => {
+  try {
+      const testRecords = await UserTestResponse.find();
+      res.status(200).json(testRecords);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching test data', error: error.message });
+  }
+});
+
+
+router.get('/user/:userId', async (req, res) => {
+  try {
+      const { userId } = req.params;
+      const testRecords = await UserTestResponse.find({ userId });
+
+      if (!testRecords.length) {
+          return res.status(404).json({ message: 'No test records found for this user' });
+      }
+
+      res.status(200).json(testRecords);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching user test data', error: error.message });
+  }
+});
 
 module.exports = router;
