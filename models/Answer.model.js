@@ -4,7 +4,7 @@ const AnswerSchema = new mongoose.Schema({
   question: { type: String, required: true },
   selectedAnswer: { type: String, required: true },
   correctAnswer: { type: String, required: true },
-  isCorrect: { type: Boolean, required: true }
+  isCorrect: { type: Boolean, required: false }
 }, { _id: false });
 
 const LessonTestSchema = new mongoose.Schema({
