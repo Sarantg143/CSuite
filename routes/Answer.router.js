@@ -3,58 +3,67 @@ const router = express.Router();
 const UserTestResponse = require('../models/Answer.model');
 
 
-router.post('/submit-test', async (req, res) => { try { const { userId, courseId, courseTitle, lessonTitle, answers } = req.body;
-  let parsedAnswers = answers;
-  if (typeof answers === 'string') {
-      try {
+router.post('/submit-test', async (req, res) => {
+    try {
+      const { userId, courseId, courseTitle, lessonTitle, answers } = req.body;
+      let parsedAnswers = answers;
+  
+      if (typeof answers === 'string') {
+        try {
           parsedAnswers = JSON.parse(answers);
-      } catch (error) {
+        } catch (error) {
           return res.status(400).json({ message: 'Invalid answers format', error: error.message });
+        }
       }
-  }
-  if (!Array.isArray(parsedAnswers)) {
-      return res.status(400).json({ message: 'Answers must be an array' });
-  }
-
-  let correctCount = parsedAnswers.reduce((count, ans) => 
-      ans.selectedAnswer === ans.correctAnswer ? count + 1 : count, 0);
-  let testRecord = await UserTestResponse.findOne({ userId, courseId });
-
-  if (!testRecord) {
-
-      testRecord = new UserTestResponse({
+  
+      if (!Array.isArray(parsedAnswers)) {
+        return res.status(400).json({ message: 'Answers must be an array' });
+      }
+  
+      let correctCount = parsedAnswers.reduce((count, ans) => 
+        ans.selectedAnswer === ans.correctAnswer ? count + 1 : count, 0);
+      
+      let testRecord = await UserTestResponse.findOne({ userId, courseId });
+  
+      if (!testRecord) {
+        testRecord = new UserTestResponse({
           userId,
           courseId,
           courseTitle,
           lessons: [{
-              lessonTitle,
-              answers: parsedAnswers,
-              lessonTotalMarks: correctCount
+            lessonTitle,
+            answers: parsedAnswers,
+            lessonTotalMarks: correctCount
           }]
-      });
-  } else {
-      const existingLesson = testRecord.lessons.find(lesson => lesson.lessonTitle === lessonTitle);
-      if (existingLesson) {
-          return res.status(400).json({ message: 'Test for this lesson already submitted' });
-      }
-      testRecord.lessons.push({
+        });
+      } else {
+        
+        const existingLesson = testRecord.lessons.find(lesson => lesson.lessonTitle === lessonTitle);
+        if (existingLesson) {
+          return res.status(200).json({ message: 'Test for this lesson already submitted' }); 
+        }
+        testRecord.lessons.push({
           lessonTitle,
           answers: parsedAnswers,
           lessonTotalMarks: correctCount
+        });
+      }
+  
+      // Calculate total marks
+      testRecord.courseTotalMarks = testRecord.lessons.reduce((sum, lesson) => sum + lesson.lessonTotalMarks, 0);
+      await testRecord.save();
+  
+      res.status(201).json({ 
+        message: 'Test submitted successfully', 
+        lessonTotalMarks: correctCount, 
+        courseTotalMarks: testRecord.courseTotalMarks 
       });
-  }
-  testRecord.courseTotalMarks = testRecord.lessons.reduce((sum, lesson) => sum + lesson.lessonTotalMarks, 0);
-  await testRecord.save();
-
-  res.status(201).json({ 
-      message: 'Test submitted successfully', 
-      lessonTotalMarks: correctCount, 
-      courseTotalMarks: testRecord.courseTotalMarks 
+  
+    } catch (error) { 
+      res.status(500).json({ message: 'Error submitting test', error: error.message }); 
+    }
   });
-
-} catch (error) { res.status(500).json({ message: 'Error submitting test', error: error.message }); } });
-
-
+  
   
 
   router.get('/course-marks/:userId/:courseId', async (req, res) => {
@@ -145,5 +154,57 @@ router.get('/user/:userId', async (req, res) => {
       res.status(500).json({ message: 'Error fetching user test data', error: error.message });
   }
 });
+
+
+// router.post('/submit-test', async (req, res) => { try { const { userId, courseId, courseTitle, lessonTitle, answers } = req.body;
+//   let parsedAnswers = answers;
+//   if (typeof answers === 'string') {
+//       try {
+//           parsedAnswers = JSON.parse(answers);
+//       } catch (error) {
+//           return res.status(400).json({ message: 'Invalid answers format', error: error.message });
+//       }
+//   }
+//   if (!Array.isArray(parsedAnswers)) {
+//       return res.status(400).json({ message: 'Answers must be an array' });
+//   }
+
+//   let correctCount = parsedAnswers.reduce((count, ans) => 
+//       ans.selectedAnswer === ans.correctAnswer ? count + 1 : count, 0);
+//   let testRecord = await UserTestResponse.findOne({ userId, courseId });
+
+//   if (!testRecord) {
+
+//       testRecord = new UserTestResponse({
+//           userId,
+//           courseId,
+//           courseTitle,
+//           lessons: [{
+//               lessonTitle,
+//               answers: parsedAnswers,
+//               lessonTotalMarks: correctCount
+//           }]
+//       });
+//   } else {
+//       const existingLesson = testRecord.lessons.find(lesson => lesson.lessonTitle === lessonTitle);
+//       if (existingLesson) {
+//           return res.status(400).json({ message: 'Test for this lesson already submitted' });
+//       }
+//       testRecord.lessons.push({
+//           lessonTitle,
+//           answers: parsedAnswers,
+//           lessonTotalMarks: correctCount
+//       });
+//   }
+//   testRecord.courseTotalMarks = testRecord.lessons.reduce((sum, lesson) => sum + lesson.lessonTotalMarks, 0);
+//   await testRecord.save();
+
+//   res.status(201).json({ 
+//       message: 'Test submitted successfully', 
+//       lessonTotalMarks: correctCount, 
+//       courseTotalMarks: testRecord.courseTotalMarks 
+//   });
+
+// } catch (error) { res.status(500).json({ message: 'Error submitting test', error: error.message }); } });
 
 module.exports = router;
