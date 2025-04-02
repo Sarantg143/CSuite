@@ -37,19 +37,40 @@ userRouter.get('/', async (req, res) => {
 });
 
 
+// userRouter.post('/check', async (req, res) => {
+//   try {
+//     const {email,password} = req.body;
+//     const users = await User.findOne({email:email});
+//     if (users.length<1) {
+//       return res.status(200).json({ success: false, message: "User not found" });
+//     }
+//     isMatch = await bcrypt.compare(password, users.password);
+//     res.status(200).json({ success: true, users, message: "Get request success" });
+//   } catch (e) {
+//     res.status(500).json({ success: false, message: e.message });
+//   }
+// });
 userRouter.post('/check', async (req, res) => {
   try {
-    const {email,password} = req.body;
-    const users = await User.findOne({email:email});
-    if (users.length<1) {
-      return res.status(200).json({ success: false, message: "User not found" });
+    const { email, password } = req.body;
+    const user = await User.findOne({
+      $or: [{ email: email }, { name: email }]
+    }).select("+password"); 
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
     }
-    isMatch = await bcrypt.compare(password, users.password);
-    res.status(200).json({ success: true, users, message: "Get request success" });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
+    }
+    const { password: _, ...userData } = user.toObject();
+    res.status(200).json({ success: true, user: userData, message: "Login successful" });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
 });
+
 
 userRouter.get('/user/:id', async (req, res) => {
   try {
